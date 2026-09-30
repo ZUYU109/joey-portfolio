@@ -1,0 +1,500 @@
+:root {
+  --mono: "JetBrains Mono", Consolas, monospace;
+  --sans: "Inter", "Segoe UI", sans-serif;
+  color: #f4f1ea;
+  background: #02030a;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.launch {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #02030a;
+  transition: opacity 0.65s ease;
+}
+
+.launch.go,
+.launch.fade {
+  justify-content: flex-end;
+}
+
+.launch.fade {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.boot-mark {
+  margin: 0;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: clamp(4.5rem, 14vw, 7.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.boot-label {
+  margin: 18px 0 0;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.bar {
+  width: min(220px, 56vw);
+  height: 2px;
+  margin-top: 16px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: #f4f1ea;
+  transition: width 0.15s linear;
+}
+
+.rocket {
+  position: relative;
+  width: 86px;
+  margin-bottom: 10vh;
+  animation: liftoff 2s cubic-bezier(0.15, 0.7, 0.2, 1) 0.15s forwards;
+}
+
+.rocket img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.flare {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: calc(100% - 10px);
+  width: 28px;
+  height: 110px;
+  transform-origin: top center;
+  border-radius: 40% 40% 46% 46%;
+  background:
+    radial-gradient(ellipse at 50% 8%, #fff 0 16%, #ffe08a 28%, transparent 58%),
+    linear-gradient(#fff, #ffd15a 14%, #ff7a18 46%, #e23b12 72%, transparent);
+  filter: blur(0.3px);
+  animation: flare 0.11s linear infinite;
+  pointer-events: none;
+}
+
+.flare::before,
+.flare::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  width: 16px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(#fff6, #ffb020, #ff4d1c 70%, transparent);
+  filter: blur(1.5px);
+  transform-origin: top center;
+}
+
+.flare::before {
+  left: -6px;
+  animation: flare-side 0.14s linear infinite;
+}
+
+.flare::after {
+  right: -6px;
+  animation: flare-side 0.13s linear infinite reverse;
+}
+
+@keyframes liftoff {
+  0% {
+    transform: translateY(0);
+  }
+  12% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(-120vh);
+  }
+}
+
+@keyframes flare {
+  0% {
+    transform: translateX(-50%) scaleY(0.82) scaleX(1.15);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateX(-50%) scaleY(1.2) scaleX(0.72);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scaleY(0.9) scaleX(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes flare-side {
+  50% {
+    transform: scaleY(1.35) scaleX(0.6);
+    opacity: 0.55;
+  }
+}
+
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.nav {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 32px;
+}
+
+.nav > a {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.nav nav {
+  display: flex;
+  gap: 22px;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nav nav a {
+  color: rgba(244, 241, 234, 0.55);
+}
+
+.nav nav a.on {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+.voyage {
+  position: relative;
+  z-index: 1;
+  height: 220vh;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.earth {
+  position: relative;
+  width: min(68vh, 70vw);
+  aspect-ratio: 1;
+  margin-bottom: -12vh;
+  transform-origin: center bottom;
+  filter: drop-shadow(0 0 36px rgba(110, 160, 255, 0.28));
+}
+
+.earth canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+
+.hero {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 18vh;
+  text-align: center;
+  pointer-events: none;
+}
+
+.pill {
+  margin: 0 0 18px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.scroll {
+  margin: 28px 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  width: min(920px, calc(100% - 40px));
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+section {
+  scroll-margin-top: 88px;
+  padding: 28px 16px 10px;
+  border-radius: 16px;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+section.on {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+h2 {
+  margin: 0 0 16px;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+dl {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+dt {
+  color: #b7b1a6;
+}
+
+dd {
+  margin: 0;
+}
+
+.shot-row {
+  position: relative;
+  margin: 0 0 16px;
+}
+
+.shots {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 2px 0 4px;
+}
+
+.shots::-webkit-scrollbar {
+  display: none;
+}
+
+.shots img {
+  height: 320px;
+  width: auto;
+  flex: none;
+  scroll-snap-align: start;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #10141c;
+}
+
+.shot-btn {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  margin-top: -18px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background: rgba(6, 10, 22, 0.78);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.shot-btn.prev {
+  left: 8px;
+}
+
+.shot-btn.next {
+  right: 8px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.cards article,
+.jobs li {
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 10, 22, 0.55);
+}
+
+h3 {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.cards p,
+.jobs p,
+main > section > p {
+  color: #c9c3b8;
+}
+
+.cards span {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+.jobs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.jobs li {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.jobs span {
+  color: #d7c4a1;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  padding: 28px 16px 40px;
+  color: #c9c3b8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rocket,
+  .flare,
+  .flare::before,
+  .flare::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .nav nav {
+    gap: 12px;
+  }
+
+  .cards,
+  .jobs li,
+  dl div {
+    grid-template-columns: 1fr;
+  }
+
+  .earth {
+    width: 92vw;
+    margin-bottom: -8vh;
+  }
+}
