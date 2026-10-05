@@ -239,6 +239,7 @@ function Shots() {
 }
 
 function GridBg() {
+  const glow = useRef(null)
   const [count, setCount] = useState({ cols: 16, rows: 12 })
 
   useEffect(() => {
@@ -253,6 +254,36 @@ function GridBg() {
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  useEffect(() => {
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (!fine) return undefined
+    const el = glow.current
+    let x = window.innerWidth * 0.18
+    let y = window.innerHeight * 0.16
+    let gx = x
+    let gy = y
+    let frame = 0
+
+    const onMove = (event) => {
+      x = event.clientX
+      y = event.clientY
+    }
+
+    const tick = () => {
+      gx += (x - gx) * 0.12
+      gy += (y - gy) * 0.12
+      el.style.transform = `translate3d(${gx}px, ${gy}px, 0)`
+      frame = requestAnimationFrame(tick)
+    }
+
+    window.addEventListener('pointermove', onMove)
+    frame = requestAnimationFrame(tick)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      cancelAnimationFrame(frame)
+    }
   }, [])
 
   const tiles = []
@@ -271,7 +302,7 @@ function GridBg() {
           <div key={id} className="tile" />
         ))}
       </div>
-      <div className="grid-glow" />
+      <div className="grid-glow" ref={glow} />
     </div>
   )
 }
