@@ -239,7 +239,7 @@ function Shots() {
 }
 
 function GridBg() {
-  const glow = useRef(null)
+  const root = useRef(null)
   const [count, setCount] = useState({ cols: 16, rows: 12 })
 
   useEffect(() => {
@@ -258,33 +258,44 @@ function GridBg() {
 
   useEffect(() => {
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    if (!fine) return undefined
-    const el = glow.current
-    let x = window.innerWidth * 0.18
-    let y = window.innerHeight * 0.16
-    let gx = x
-    let gy = y
-    let frame = 0
+    const grid = root.current
+    if (!fine || !grid) return undefined
+    const cells = [...grid.querySelectorAll('.tile')]
+    let lit = []
 
-    const onMove = (event) => {
-      x = event.clientX
-      y = event.clientY
+    const paint = (clientX, clientY) => {
+      const { cols, rows } = count
+      const cellW = window.innerWidth / cols
+      const cellH = window.innerHeight / rows
+      const cx = clientX / cellW
+      const cy = clientY / cellH
+      const radius = 2.6
+      const next = []
+      for (const cell of lit) cell.style.setProperty('--g', '0')
+      const x0 = Math.max(0, Math.floor(cx - radius))
+      const x1 = Math.min(cols - 1, Math.ceil(cx + radius))
+      const y0 = Math.max(0, Math.floor(cy - radius))
+      const y1 = Math.min(rows - 1, Math.ceil(cy + radius))
+      for (let y = y0; y <= y1; y += 1) {
+        for (let x = x0; x <= x1; x += 1) {
+          const dist = Math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+          if (dist > radius) continue
+          const cell = cells[y * cols + x]
+          if (!cell) continue
+          cell.style.setProperty('--g', (1 - dist / radius).toFixed(3))
+          next.push(cell)
+        }
+      }
+      lit = next
     }
 
-    const tick = () => {
-      gx += (x - gx) * 0.12
-      gy += (y - gy) * 0.12
-      el.style.transform = `translate3d(${gx}px, ${gy}px, 0)`
-      frame = requestAnimationFrame(tick)
-    }
-
+    const onMove = (event) => paint(event.clientX, event.clientY)
     window.addEventListener('pointermove', onMove)
-    frame = requestAnimationFrame(tick)
     return () => {
       window.removeEventListener('pointermove', onMove)
-      cancelAnimationFrame(frame)
+      for (const cell of lit) cell.style.removeProperty('--g')
     }
-  }, [])
+  }, [count])
 
   const tiles = []
   for (let i = 0; i < count.cols * count.rows; i += 1) tiles.push(i)
@@ -293,6 +304,7 @@ function GridBg() {
     <div className="grid-bg" aria-hidden="true">
       <div
         className="grid-tiles"
+        ref={root}
         style={{
           gridTemplateColumns: `repeat(${count.cols}, 1fr)`,
           gridTemplateRows: `repeat(${count.rows}, 1fr)`,
@@ -302,7 +314,6 @@ function GridBg() {
           <div key={id} className="tile" />
         ))}
       </div>
-      <div className="grid-glow" ref={glow} />
     </div>
   )
 }
