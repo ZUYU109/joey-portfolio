@@ -312,7 +312,8 @@ export default function App() {
           <p>
             I build backend APIs that sit between a frontend and other systems,
             including incoming and outgoing external calls. I am also learning
-            Flutter.
+            Flutter. I am interested in AI development, learning AI tools, and
+            using them to automate day-to-day tasks.
           </p>
         </section>
 
