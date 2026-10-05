@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Earth from './Earth'
+import Cursor from './Cursor'
 
 const shots = [
   ['flutter-boss.webp', 'Boss home'],
@@ -237,43 +238,42 @@ function Shots() {
   )
 }
 
-function Stars() {
-  const ref = useRef(null)
+function GridBg() {
+  const [count, setCount] = useState({ cols: 16, rows: 12 })
 
   useEffect(() => {
-    const canvas = ref.current
-    const ctx = canvas.getContext('2d')
-    const stars = Array.from({ length: 220 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      r: Math.random() * 1.3 + 0.2,
-      a: Math.random() * 0.7 + 0.25,
-    }))
-
-    const draw = () => {
-      const ratio = Math.min(window.devicePixelRatio || 1, 2)
-      const w = window.innerWidth
-      const h = window.innerHeight
-      canvas.width = w * ratio
-      canvas.height = h * ratio
-      canvas.style.width = `${w}px`
-      canvas.style.height = `${h}px`
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
-      ctx.clearRect(0, 0, w, h)
-      for (const star of stars) {
-        ctx.fillStyle = `rgba(255,255,255,${star.a})`
-        ctx.beginPath()
-        ctx.arc(star.x * w, star.y * h, star.r, 0, Math.PI * 2)
-        ctx.fill()
-      }
+    const measure = () => {
+      const tile = 80
+      const gap = 4
+      setCount({
+        cols: Math.max(1, Math.round((window.innerWidth + gap) / (tile + gap))),
+        rows: Math.max(1, Math.round((window.innerHeight + gap) / (tile + gap))),
+      })
     }
-
-    draw()
-    window.addEventListener('resize', draw)
-    return () => window.removeEventListener('resize', draw)
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
   }, [])
 
-  return <canvas ref={ref} className="stars" aria-hidden="true" />
+  const tiles = []
+  for (let i = 0; i < count.cols * count.rows; i += 1) tiles.push(i)
+
+  return (
+    <div className="grid-bg" aria-hidden="true">
+      <div
+        className="grid-tiles"
+        style={{
+          gridTemplateColumns: `repeat(${count.cols}, 1fr)`,
+          gridTemplateRows: `repeat(${count.rows}, 1fr)`,
+        }}
+      >
+        {tiles.map((id) => (
+          <div key={id} className="tile" />
+        ))}
+      </div>
+      <div className="grid-glow" />
+    </div>
+  )
 }
 
 function Launch() {
@@ -386,8 +386,9 @@ export default function App() {
 
   return (
     <>
+      <Cursor />
       <Launch />
-      <Stars />
+      <GridBg />
       <header className="nav">
         <a href="#top">Joey</a>
         <nav>
