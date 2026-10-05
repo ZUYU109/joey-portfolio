@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Earth from './Earth'
 
 const shots = [
@@ -56,7 +57,10 @@ const skills = [
 
 function Shots() {
   const ref = useRef(null)
-  const [edge, setEdge] = useState({ left: false, right: true })
+  const drag = useRef({ active: false, x: 0, left: 0, moved: false })
+  const [edge, setEdge] = useState({ left: false, right: false })
+  const [zoom, setZoom] = useState(null)
+  const [scale, setScale] = useState(1)
 
   useEffect(() => {
     const el = ref.current
@@ -66,40 +70,170 @@ function Shots() {
         right: el.scrollLeft + el.clientWidth < el.scrollWidth - 8,
       })
     }
+    const onWheel = (event) => {
+      if (el.scrollWidth <= el.clientWidth + 2) return
+      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY
+      if (!delta) return
+      const max = el.scrollWidth - el.clientWidth
+      const next = Math.min(max, Math.max(0, el.scrollLeft + delta))
+      if (next === el.scrollLeft) return
+      event.preventDefault()
+      el.scrollLeft = next
+    }
     update()
     el.addEventListener('scroll', update, { passive: true })
+    el.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('resize', update)
+    const images = [...el.querySelectorAll('img')]
+    images.forEach((img) => img.addEventListener('load', update))
     return () => {
       el.removeEventListener('scroll', update)
+      el.removeEventListener('wheel', onWheel)
       window.removeEventListener('resize', update)
+      images.forEach((img) => img.removeEventListener('load', update))
     }
   }, [])
 
+  useEffect(() => {
+    if (zoom == null) return undefined
+    const onKey = (event) => {
+      if (event.key === 'Escape') setZoom(null)
+      if (event.key === 'ArrowRight') {
+        setScale(1)
+        setZoom((index) => (index + 1) % shots.length)
+      }
+      if (event.key === 'ArrowLeft') {
+        setScale(1)
+        setZoom((index) => (index - 1 + shots.length) % shots.length)
+      }
+    }
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = previous
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [zoom])
+
   const move = (dir) => {
     const el = ref.current
-    const card = el.querySelector('img')
-    const step = (card?.getBoundingClientRect().width || 180) + 12
-    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+    const cards = [...el.querySelectorAll('.shot')]
+    let index = 0
+    cards.forEach((card, i) => {
+      if (card.offsetLeft <= el.scrollLeft + 8) index = i
+    })
+    const next = cards[Math.max(0, Math.min(cards.length - 1, index + dir))]
+    el.scrollTo({ left: next.offsetLeft, behavior: 'smooth' })
+  }
+
+  const onPointerDown = (event) => {
+    if (event.button !== 0) return
+    const el = ref.current
+    drag.current = { active: true, x: event.clientX, left: el.scrollLeft, moved: false, captured: false }
+  }
+
+  const onPointerMove = (event) => {
+    if (!drag.current.active) return
+    const dx = event.clientX - drag.current.x
+    if (Math.abs(dx) <= 5) return
+    drag.current.moved = true
+    if (!drag.current.captured) {
+      ref.current.setPointerCapture(event.pointerId)
+      drag.current.captured = true
+    }
+    ref.current.scrollLeft = drag.current.left - dx
+  }
+
+  const onPointerUp = () => {
+    drag.current.active = false
+  }
+
+  const show = (index) => {
+    setScale(1)
+    setZoom((index + shots.length) % shots.length)
   }
 
   return (
-    <div className="shot-row">
-      <div className="shots" ref={ref}>
-        {shots.map(([file, label]) => (
-          <img key={file} src={`${import.meta.env.BASE_URL}${file}`} alt={label} />
-        ))}
+    <>
+      <div className="shot-row">
+        <div
+          className="shots"
+          ref={ref}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+        >
+          {shots.map(([file, label], index) => (
+            <button
+              key={file}
+              className="shot"
+              type="button"
+              aria-label={`Zoom ${label}`}
+              onClick={() => {
+                if (drag.current.moved) {
+                  drag.current.moved = false
+                  return
+                }
+                show(index)
+              }}
+            >
+              <img src={`${import.meta.env.BASE_URL}${file}`} alt={label} draggable="false" />
+            </button>
+          ))}
+        </div>
+        {edge.left && (
+          <button className="shot-btn prev" type="button" onClick={() => move(-1)} aria-label="Previous screen">
+            ‹
+          </button>
+        )}
+        {edge.right && (
+          <button className="shot-btn next" type="button" onClick={() => move(1)} aria-label="Next screen">
+            ›
+          </button>
+        )}
       </div>
-      {edge.left && (
-        <button className="shot-btn prev" type="button" onClick={() => move(-1)} aria-label="Previous screen">
-          ‹
-        </button>
+      {zoom != null && createPortal(
+        <div className="zoom" role="dialog" aria-modal="true" aria-label={shots[zoom][1]} onClick={() => setZoom(null)}>
+          <button className="zoom-close" type="button" aria-label="Close" onClick={() => setZoom(null)}>
+            ×
+          </button>
+          <button
+            className="shot-btn prev zoom-nav"
+            type="button"
+            aria-label="Previous screen"
+            onClick={(event) => {
+              event.stopPropagation()
+              show(zoom - 1)
+            }}
+          >
+            ‹
+          </button>
+          <figure onClick={(event) => event.stopPropagation()}>
+            <img
+              src={`${import.meta.env.BASE_URL}${shots[zoom][0]}`}
+              alt={shots[zoom][1]}
+              className={scale > 1 ? 'in' : ''}
+              onClick={() => setScale((value) => (value > 1 ? 1 : 2))}
+            />
+            <figcaption>{shots[zoom][1]} · click the image to zoom</figcaption>
+          </figure>
+          <button
+            className="shot-btn next zoom-nav"
+            type="button"
+            aria-label="Next screen"
+            onClick={(event) => {
+              event.stopPropagation()
+              show(zoom + 1)
+            }}
+          >
+            ›
+          </button>
+        </div>,
+        document.body,
       )}
-      {edge.right && (
-        <button className="shot-btn next" type="button" onClick={() => move(1)} aria-label="Next screen">
-          ›
-        </button>
-      )}
-    </div>
+    </>
   )
 }
 
