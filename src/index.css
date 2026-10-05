@@ -587,51 +587,30 @@ footer {
   pointer-events: none;
   opacity: 0;
   border-radius: 50%;
-  mix-blend-mode: difference;
 }
 
 .cursor-dot {
-  width: 5px;
-  height: 5px;
-  margin: -2.5px 0 0 -2.5px;
-  background: #fff;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: #f4f1ea;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
 .cursor-ring {
-  width: 28px;
-  height: 28px;
-  margin: -14px 0 0 -14px;
-  border: 1px solid #fff;
-  transition: width 0.2s ease, height 0.2s ease, margin 0.2s ease;
-}
-
-.cursor-ring::before,
-.cursor-ring::after {
-  content: "";
-  position: absolute;
-  background: #fff;
-}
-
-.cursor-ring::before {
-  left: 50%;
-  top: -5px;
-  bottom: -5px;
-  width: 1px;
-  transform: translateX(-50%);
-}
-
-.cursor-ring::after {
-  top: 50%;
-  left: -5px;
-  right: -5px;
-  height: 1px;
-  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 1px solid rgba(244, 241, 234, 0.7);
+  transition: width 0.25s ease, height 0.25s ease, margin 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
 
 .cursor-ring.hot {
-  width: 54px;
-  height: 54px;
-  margin: -27px 0 0 -27px;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-color: rgba(57, 255, 20, 0.9);
+  background: rgba(57, 255, 20, 0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
