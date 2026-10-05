@@ -22,7 +22,7 @@ const projects = [
       {
         name: 'Field Job',
         text: 'A Flutter app for field work: job lists, maps, and data sync.',
-        tech: 'Flutter',
+        tech: ['Flutter'],
       },
     ],
   },
@@ -32,7 +32,7 @@ const projects = [
       {
         name: 'API Layer',
         text: 'Backend-for-frontend services in C# and .NET, with external APIs in both directions.',
-        tech: 'C# · .NET',
+        tech: ['C#', '.NET'],
       },
     ],
   },
@@ -42,7 +42,7 @@ const projects = [
       {
         name: 'Shop Site',
         text: 'A mobile-friendly e-commerce website built during an internship.',
-        tech: 'WordPress',
+        tech: ['WordPress'],
       },
     ],
   },
@@ -567,7 +567,11 @@ export default function App() {
                   <article key={item.name}>
                     <h3>{item.name}</h3>
                     <p>{item.text}</p>
-                    <span>{item.tech}</span>
+                    <ul className="pills">
+                      {item.tech.map((tag) => (
+                        <li key={tag}>{tag}</li>
+                      ))}
+                    </ul>
                   </article>
                 ))}
               </div>
