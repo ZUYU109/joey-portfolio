@@ -11,21 +11,40 @@ const shots = [
   ['flutter-driver.webp', 'Driver home'],
 ]
 
+const dev = (name) =>
+  `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${name}.svg`
+
 const projects = [
   {
-    name: 'Field Job',
-    text: 'A Flutter app for field work: job lists, maps, and data sync.',
-    tech: 'Flutter',
+    category: 'Flutter',
+    shots: true,
+    items: [
+      {
+        name: 'Field Job',
+        text: 'A Flutter app for field work: job lists, maps, and data sync.',
+        tech: 'Flutter',
+      },
+    ],
   },
   {
-    name: 'API Layer',
-    text: 'Backend-for-frontend services in C# and .NET, with external APIs in both directions.',
-    tech: 'C# · .NET',
+    category: 'Backend',
+    items: [
+      {
+        name: 'API Layer',
+        text: 'Backend-for-frontend services in C# and .NET, with external APIs in both directions.',
+        tech: 'C# · .NET',
+      },
+    ],
   },
   {
-    name: 'Shop Site',
-    text: 'A mobile-friendly e-commerce website built during an internship.',
-    tech: 'WordPress',
+    category: 'Web',
+    items: [
+      {
+        name: 'Shop Site',
+        text: 'A mobile-friendly e-commerce website built during an internship.',
+        tech: 'WordPress',
+      },
+    ],
   },
 ]
 
@@ -42,19 +61,62 @@ const sections = [
   ['skills', 'Skills'],
 ]
 
-const skills = [
-  'C#',
-  '.NET',
-  'REST',
-  'SQL',
-  'Flutter',
-  'Git',
-  'Azure DevOps',
-  'JavaScript',
-  'Java',
-  'PHP',
-  'Laravel',
+const skillGroups = [
+  {
+    name: 'Languages',
+    items: [
+      ['C#', dev('csharp/csharp-original')],
+      ['JavaScript', dev('javascript/javascript-original')],
+      ['Java', dev('java/java-original')],
+      ['PHP', dev('php/php-original')],
+      ['SQL', ''],
+    ],
+  },
+  {
+    name: 'Frameworks',
+    items: [
+      ['.NET', dev('dot-net/dot-net-original')],
+      ['Laravel', dev('laravel/laravel-original')],
+      ['Flutter', dev('flutter/flutter-original')],
+    ],
+  },
+  {
+    name: 'Databases',
+    items: [
+      ['MySQL', dev('mysql/mysql-original')],
+      ['SQL Server', dev('microsoftsqlserver/microsoftsqlserver-plain')],
+      ['PostgreSQL', dev('postgresql/postgresql-original')],
+      ['Oracle', dev('oracle/oracle-original')],
+    ],
+  },
+  {
+    name: 'Tools',
+    items: [
+      ['Git', dev('git/git-original')],
+      ['Azure DevOps', dev('azuredevops/azuredevops-original')],
+      ['Postman', dev('postman/postman-original')],
+      ['Swagger', dev('swagger/swagger-original')],
+    ],
+  },
+  {
+    name: 'AI tools',
+    items: [
+      ['Cursor', 'https://cdn.simpleicons.org/cursor/FFFFFF'],
+      ['GitHub Copilot', 'https://cdn.simpleicons.org/githubcopilot/FFFFFF'],
+      ['Gemini', 'https://cdn.simpleicons.org/googlegemini/8E75B2'],
+    ],
+  },
 ]
+
+function SqlMark() {
+  return (
+    <svg className="sql-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <ellipse cx="12" cy="6" rx="8" ry="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  )
+}
 
 function Shots() {
   const ref = useRef(null)
@@ -496,16 +558,21 @@ export default function App() {
 
         <section id="projects" className={active === 'projects' ? 'on' : ''}>
           <h2>Projects</h2>
-          <Shots />
-          <div className="cards">
-            {projects.map((item) => (
-              <article key={item.name}>
-                <h3>{item.name}</h3>
-                <p>{item.text}</p>
-                <span>{item.tech}</span>
-              </article>
-            ))}
-          </div>
+          {projects.map((group) => (
+            <div className="project-group" key={group.category}>
+              <h3 className="cat">{group.category}</h3>
+              {group.shots && <Shots />}
+              <div className="cards">
+                {group.items.map((item) => (
+                  <article key={item.name}>
+                    <h3>{item.name}</h3>
+                    <p>{item.text}</p>
+                    <span>{item.tech}</span>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
 
         <section id="experience" className={active === 'experience' ? 'on' : ''}>
@@ -525,11 +592,21 @@ export default function App() {
 
         <section id="skills" className={active === 'skills' ? 'on' : ''}>
           <h2>Skills</h2>
-          <ul className="tags">
-            {skills.map((skill) => (
-              <li key={skill}>{skill}</li>
+          <div className="skill-groups">
+            {skillGroups.map((group) => (
+              <div key={group.name}>
+                <h3>{group.name}</h3>
+                <ul className="skill-grid">
+                  {group.items.map(([name, icon]) => (
+                    <li key={name}>
+                      {icon ? <img src={icon} alt="" /> : <SqlMark />}
+                      <span>{name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       </main>
 
